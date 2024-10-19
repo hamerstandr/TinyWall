@@ -108,6 +108,7 @@
             // 
             this.txtAssocOutputPath.Location = new System.Drawing.Point(11, 72);
             this.txtAssocOutputPath.Name = "txtAssocOutputPath";
+            this.txtAssocOutputPath.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.txtAssocOutputPath.Size = new System.Drawing.Size(423, 20);
             this.txtAssocOutputPath.TabIndex = 8;
             this.txtAssocOutputPath.Text = "C:\\Users\\Karoly\\Nextcloud\\TinyWall\\TinyWall3\\TinyWall\\Database";
@@ -135,17 +136,20 @@
             // 
             this.txtDBFolderPath.Location = new System.Drawing.Point(11, 33);
             this.txtDBFolderPath.Name = "txtDBFolderPath";
+            this.txtDBFolderPath.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.txtDBFolderPath.Size = new System.Drawing.Size(423, 20);
             this.txtDBFolderPath.TabIndex = 3;
             this.txtDBFolderPath.Text = "C:\\Users\\Karoly\\Nextcloud\\TinyWall\\TinyWall3\\TinyWall\\Database";
             // 
             // btnCollectionsCreate
             // 
+            this.btnCollectionsCreate.Image = global::pylorak.TinyWall.Properties.Resources.hammer_16px;
+            this.btnCollectionsCreate.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnCollectionsCreate.Location = new System.Drawing.Point(521, 33);
             this.btnCollectionsCreate.Name = "btnCollectionsCreate";
             this.btnCollectionsCreate.Size = new System.Drawing.Size(109, 59);
             this.btnCollectionsCreate.TabIndex = 2;
-            this.btnCollectionsCreate.Text = "Create";
+            this.btnCollectionsCreate.Text = "ساختن";
             this.btnCollectionsCreate.UseVisualStyleBackColor = true;
             this.btnCollectionsCreate.Click += new System.EventHandler(this.btnCollectionsCreate_Click);
             // 
@@ -161,11 +165,12 @@
             // 
             // btnExit
             // 
+            this.btnExit.ForeColor = System.Drawing.Color.DarkRed;
             this.btnExit.Location = new System.Drawing.Point(709, 367);
             this.btnExit.Name = "btnExit";
             this.btnExit.Size = new System.Drawing.Size(75, 23);
             this.btnExit.TabIndex = 2;
-            this.btnExit.Text = "Exit";
+            this.btnExit.Text = "بستن";
             this.btnExit.UseVisualStyleBackColor = true;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
             // 
@@ -173,6 +178,7 @@
             // 
             this.txtStrongName.Location = new System.Drawing.Point(97, 25);
             this.txtStrongName.Name = "txtStrongName";
+            this.txtStrongName.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.txtStrongName.Size = new System.Drawing.Size(651, 20);
             this.txtStrongName.TabIndex = 1;
             // 
@@ -182,7 +188,7 @@
             this.btnStrongNameBrowse.Name = "btnStrongNameBrowse";
             this.btnStrongNameBrowse.Size = new System.Drawing.Size(75, 23);
             this.btnStrongNameBrowse.TabIndex = 0;
-            this.btnStrongNameBrowse.Text = "Browse...";
+            this.btnStrongNameBrowse.Text = "مرور...";
             this.btnStrongNameBrowse.UseVisualStyleBackColor = true;
             this.btnStrongNameBrowse.Click += new System.EventHandler(this.btnStrongNameBrowse_Click);
             // 
@@ -196,6 +202,7 @@
             this.tabControl1.Controls.Add(this.tabPage6);
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
+            this.tabControl1.RightToLeftLayout = true;
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(772, 349);
             this.tabControl1.TabIndex = 4;
@@ -210,44 +217,48 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.tabPage1.Size = new System.Drawing.Size(764, 323);
             this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Profile creator";
+            this.tabPage1.Text = "سازنده نمایه";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(8, 12);
+            this.label1.Location = new System.Drawing.Point(658, 13);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(63, 13);
+            this.label1.Size = new System.Drawing.Size(100, 13);
             this.label1.TabIndex = 3;
-            this.label1.Text = "Executable:";
+            this.label1.Text = "اجرایی/Executable:";
             // 
             // btnAssocCreate
             // 
-            this.btnAssocCreate.Location = new System.Drawing.Point(521, 26);
+            this.btnAssocCreate.Image = global::pylorak.TinyWall.Properties.Resources.hammer_16px;
+            this.btnAssocCreate.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnAssocCreate.Location = new System.Drawing.Point(146, 27);
             this.btnAssocCreate.Name = "btnAssocCreate";
             this.btnAssocCreate.Size = new System.Drawing.Size(75, 23);
             this.btnAssocCreate.TabIndex = 4;
-            this.btnAssocCreate.Text = "Create";
+            this.btnAssocCreate.Text = "ساخت";
             this.btnAssocCreate.UseVisualStyleBackColor = true;
             this.btnAssocCreate.Click += new System.EventHandler(this.btnAssocCreate_Click);
             // 
             // btnAssocBrowse
             // 
-            this.btnAssocBrowse.Location = new System.Drawing.Point(440, 26);
+            this.btnAssocBrowse.Location = new System.Drawing.Point(238, 26);
             this.btnAssocBrowse.Name = "btnAssocBrowse";
             this.btnAssocBrowse.Size = new System.Drawing.Size(75, 23);
             this.btnAssocBrowse.TabIndex = 0;
-            this.btnAssocBrowse.Text = "Browse...";
+            this.btnAssocBrowse.Text = "مرور...";
             this.btnAssocBrowse.UseVisualStyleBackColor = true;
             this.btnAssocBrowse.Click += new System.EventHandler(this.btnAssocBrowse_Click);
             // 
             // txtAssocExePath
             // 
-            this.txtAssocExePath.Location = new System.Drawing.Point(11, 28);
+            this.txtAssocExePath.Location = new System.Drawing.Point(332, 29);
             this.txtAssocExePath.Name = "txtAssocExePath";
+            this.txtAssocExePath.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.txtAssocExePath.Size = new System.Drawing.Size(423, 20);
             this.txtAssocExePath.TabIndex = 1;
             // 
@@ -275,7 +286,7 @@
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage2.Size = new System.Drawing.Size(764, 323);
             this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Database creator";
+            this.tabPage2.Text = "سازنده پایگاه داده";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // tabPage4
@@ -293,7 +304,7 @@
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Size = new System.Drawing.Size(764, 323);
             this.tabPage4.TabIndex = 3;
-            this.tabPage4.Text = "Update creator";
+            this.tabPage4.Text = "ایجاد کننده به روز رسانی";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
             // btnUpdateInstallerBrowse
@@ -310,6 +321,7 @@
             // 
             this.txtUpdateURL.Location = new System.Drawing.Point(17, 34);
             this.txtUpdateURL.Name = "txtUpdateURL";
+            this.txtUpdateURL.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.txtUpdateURL.Size = new System.Drawing.Size(423, 20);
             this.txtUpdateURL.TabIndex = 23;
             this.txtUpdateURL.Text = "https://tinywall.pados.hu/updates/UpdVer6/";
@@ -346,6 +358,7 @@
             // 
             this.txtUpdateOutput.Location = new System.Drawing.Point(17, 123);
             this.txtUpdateOutput.Name = "txtUpdateOutput";
+            this.txtUpdateOutput.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.txtUpdateOutput.Size = new System.Drawing.Size(423, 20);
             this.txtUpdateOutput.TabIndex = 19;
             this.txtUpdateOutput.Text = "C:\\Users\\Karoly\\Nextcloud\\TinyWall\\TinyWall3\\OnlineUpdate";
@@ -354,17 +367,20 @@
             // 
             this.txtUpdateInstallerProjectDir.Location = new System.Drawing.Point(17, 79);
             this.txtUpdateInstallerProjectDir.Name = "txtUpdateInstallerProjectDir";
+            this.txtUpdateInstallerProjectDir.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.txtUpdateInstallerProjectDir.Size = new System.Drawing.Size(423, 20);
             this.txtUpdateInstallerProjectDir.TabIndex = 12;
             this.txtUpdateInstallerProjectDir.Text = "C:\\Users\\Karoly\\Nextcloud\\TinyWall\\TinyWall3\\MsiSetup";
             // 
             // btnUpdateCreate
             // 
+            this.btnUpdateCreate.Image = global::pylorak.TinyWall.Properties.Resources.hammer_16px;
+            this.btnUpdateCreate.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnUpdateCreate.Location = new System.Drawing.Point(574, 79);
             this.btnUpdateCreate.Name = "btnUpdateCreate";
             this.btnUpdateCreate.Size = new System.Drawing.Size(109, 59);
             this.btnUpdateCreate.TabIndex = 11;
-            this.btnUpdateCreate.Text = "Create";
+            this.btnUpdateCreate.Text = "ساخت";
             this.btnUpdateCreate.UseVisualStyleBackColor = true;
             this.btnUpdateCreate.Click += new System.EventHandler(this.btnUpdateCreate_Click);
             // 
@@ -385,7 +401,7 @@
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Size = new System.Drawing.Size(764, 323);
             this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "Strong name";
+            this.tabPage3.Text = "نام قوی";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
             // tabPage5
@@ -410,6 +426,7 @@
             this.listPrimaries.FormattingEnabled = true;
             this.listPrimaries.Location = new System.Drawing.Point(6, 6);
             this.listPrimaries.Name = "listPrimaries";
+            this.listPrimaries.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.listPrimaries.Size = new System.Drawing.Size(212, 264);
             this.listPrimaries.TabIndex = 8;
             this.listPrimaries.SelectedIndexChanged += new System.EventHandler(this.listPrimaries_SelectedIndexChanged);
@@ -418,6 +435,7 @@
             // 
             this.txtOutputPath.Location = new System.Drawing.Point(9, 289);
             this.txtOutputPath.Name = "txtOutputPath";
+            this.txtOutputPath.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.txtOutputPath.Size = new System.Drawing.Size(349, 20);
             this.txtOutputPath.TabIndex = 12;
             this.txtOutputPath.Text = "D:\\archive\\d0\\projects\\TinyWall";
@@ -466,6 +484,7 @@
             this.listSatellites.FormattingEnabled = true;
             this.listSatellites.Location = new System.Drawing.Point(361, 6);
             this.listSatellites.Name = "listSatellites";
+            this.listSatellites.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.listSatellites.Size = new System.Drawing.Size(212, 264);
             this.listSatellites.TabIndex = 9;
             // 
@@ -490,13 +509,14 @@
             this.tabPage6.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage6.Size = new System.Drawing.Size(764, 323);
             this.tabPage6.TabIndex = 5;
-            this.tabPage6.Text = "Batch signer";
+            this.tabPage6.Text = "امضا کننده دسته";
             this.tabPage6.UseVisualStyleBackColor = true;
             // 
             // txtTimestampingServ
             // 
             this.txtTimestampingServ.Location = new System.Drawing.Point(9, 199);
             this.txtTimestampingServ.Name = "txtTimestampingServ";
+            this.txtTimestampingServ.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.txtTimestampingServ.Size = new System.Drawing.Size(329, 20);
             this.txtTimestampingServ.TabIndex = 13;
             this.txtTimestampingServ.Text = "http://timestamp.digicert.com";
@@ -524,6 +544,7 @@
             // 
             this.txtSigntool.Location = new System.Drawing.Point(9, 160);
             this.txtSigntool.Name = "txtSigntool";
+            this.txtSigntool.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.txtSigntool.Size = new System.Drawing.Size(329, 20);
             this.txtSigntool.TabIndex = 10;
             this.txtSigntool.Text = "C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v7.1A\\Bin\\Signtool.exe";
@@ -561,6 +582,7 @@
             // 
             this.txtSignDir.Location = new System.Drawing.Point(9, 121);
             this.txtSignDir.Name = "txtSignDir";
+            this.txtSignDir.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.txtSignDir.Size = new System.Drawing.Size(329, 20);
             this.txtSignDir.TabIndex = 6;
             this.txtSignDir.Text = "C:\\Users\\Karoly\\Nextcloud\\TinyWall\\TinyWall3\\MsiSetup\\";
@@ -578,6 +600,7 @@
             // 
             this.txtCertPass.Location = new System.Drawing.Point(9, 82);
             this.txtCertPass.Name = "txtCertPass";
+            this.txtCertPass.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.txtCertPass.Size = new System.Drawing.Size(329, 20);
             this.txtCertPass.TabIndex = 4;
             // 
@@ -604,6 +627,7 @@
             // 
             this.txtCert.Location = new System.Drawing.Point(9, 43);
             this.txtCert.Name = "txtCert";
+            this.txtCert.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.txtCert.Size = new System.Drawing.Size(329, 20);
             this.txtCert.TabIndex = 1;
             this.txtCert.Text = "C:\\Users\\Karoly\\Nextcloud\\TinyWall\\TinyWall3\\Cert\\KarolyPadosCodeSign.pfx";
@@ -627,7 +651,9 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "DevelToolForm";
-            this.Text = "TinyWall Development Helper Tool";
+            this.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.RightToLeftLayout = true;
+            this.Text = "ابزار کمکی توسعه TinyWall";
             this.Load += new System.EventHandler(this.DevelToolForm_Load);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);

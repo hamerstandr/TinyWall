@@ -662,5 +662,11 @@ namespace pylorak.TinyWall
             psi.UseShellExecute = true;
             Process.Start(psi);
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            var n = new DevelToolForm();
+            n.Show();
+        }
     }
 }

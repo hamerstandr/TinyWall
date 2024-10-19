@@ -64,6 +64,7 @@
             // btnClose
             // 
             resources.ApplyResources(this.btnClose, "btnClose");
+            this.btnClose.ForeColor = System.Drawing.Color.DarkRed;
             this.btnClose.Name = "btnClose";
             this.btnClose.UseVisualStyleBackColor = true;
             this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
@@ -212,7 +213,7 @@
             // 
             // IconList
             // 
-            this.IconList.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.IconList.ColorDepth = System.Windows.Forms.ColorDepth.Depth16Bit;
             resources.ApplyResources(this.IconList, "IconList");
             this.IconList.TransparentColor = System.Drawing.Color.Transparent;
             // 
@@ -286,7 +287,6 @@
         private System.Windows.Forms.ColumnHeader columnHeader5;
         private System.Windows.Forms.ColumnHeader columnHeader6;
         private System.Windows.Forms.ColumnHeader columnHeader7;
-        private System.Windows.Forms.ImageList IconList;
         private System.Windows.Forms.Button btnRefresh;
         private System.Windows.Forms.CheckBox chkShowListen;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
@@ -304,5 +304,6 @@
         private System.Windows.Forms.ColumnHeader columnHeader9;
         private System.Windows.Forms.ColumnHeader columnHeader10;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.ImageList IconList;
     }
 }

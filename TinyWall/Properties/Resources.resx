@@ -117,55 +117,11 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="File_and_Printer_Sharing" xml:space="preserve">
-    <value>File and Printer Sharing</value>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="hammer_16px" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\img\hammer_16px.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Filtered_ICMP_Traffic" xml:space="preserve">
-    <value>Filtered ICMP Traffic</value>
-  </data>
-  <data name="Pingable_local_machine" xml:space="preserve">
-    <value>Pingable local machine</value>
-  </data>
-  <data name="TinyWall" xml:space="preserve">
-    <value>TinyWall</value>
-  </data>
-  <data name="VPN_L2TP_IPSec" xml:space="preserve">
-    <value>VPN L2TP/IPSec</value>
-  </data>
-  <data name="VPN_PPTP" xml:space="preserve">
-    <value>VPN PPTP</value>
-  </data>
-  <data name="Windows_Defender" xml:space="preserve">
-    <value>Windows Defender</value>
-  </data>
-  <data name="Windows_DHCP_Client" xml:space="preserve">
-    <value>Windows DHCP Client</value>
-  </data>
-  <data name="Windows_DNS_Client" xml:space="preserve">
-    <value>Windows DNS Client</value>
-  </data>
-  <data name="Windows_Network_Discovery" xml:space="preserve">
-    <value>Windows Network Discovery</value>
-  </data>
-  <data name="Windows_Remote_Assistance" xml:space="preserve">
-    <value>Windows Remote Assistance</value>
-  </data>
-  <data name="Windows_Remote_Desktop" xml:space="preserve">
-    <value>Windows Remote Desktop</value>
-  </data>
-  <data name="Windows_Store_Update" xml:space="preserve">
-    <value>Windows Store Update</value>
-  </data>
-  <data name="Windows_Time_Sync" xml:space="preserve">
-    <value>Windows Time Sync</value>
-  </data>
-  <data name="Windows_Update" xml:space="preserve">
-    <value>Windows Update</value>
-  </data>
-  <data name="WSL_2" xml:space="preserve">
-    <value>WSL 2</value>
-  </data>
-  <data name="Windows_Store_and_Apps" xml:space="preserve">
-    <value>win</value>
+  <data name="refresh_16px" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\img\refresh_16px.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

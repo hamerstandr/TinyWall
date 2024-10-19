@@ -204,6 +204,7 @@
             // radBlock
             // 
             resources.ApplyResources(this.radBlock, "radBlock");
+            this.radBlock.ForeColor = System.Drawing.Color.Red;
             this.radBlock.Name = "radBlock";
             this.radBlock.TabStop = true;
             this.radBlock.UseVisualStyleBackColor = true;
@@ -212,6 +213,7 @@
             // radTcpUdpOut
             // 
             resources.ApplyResources(this.radTcpUdpOut, "radTcpUdpOut");
+            this.radTcpUdpOut.ForeColor = System.Drawing.Color.Chocolate;
             this.radTcpUdpOut.Name = "radTcpUdpOut";
             this.radTcpUdpOut.TabStop = true;
             this.radTcpUdpOut.UseVisualStyleBackColor = true;
@@ -221,6 +223,7 @@
             // 
             resources.ApplyResources(this.radTcpUdpUnrestricted, "radTcpUdpUnrestricted");
             this.radTcpUdpUnrestricted.Checked = true;
+            this.radTcpUdpUnrestricted.ForeColor = System.Drawing.Color.Chocolate;
             this.radTcpUdpUnrestricted.Name = "radTcpUdpUnrestricted";
             this.radTcpUdpUnrestricted.TabStop = true;
             this.radTcpUdpUnrestricted.UseVisualStyleBackColor = true;
@@ -229,6 +232,7 @@
             // radUnrestricted
             // 
             resources.ApplyResources(this.radUnrestricted, "radUnrestricted");
+            this.radUnrestricted.ForeColor = System.Drawing.Color.DarkGreen;
             this.radUnrestricted.Name = "radUnrestricted";
             this.radUnrestricted.TabStop = true;
             this.radUnrestricted.UseVisualStyleBackColor = true;
@@ -294,6 +298,7 @@
             // radOnlySpecifiedPorts
             // 
             resources.ApplyResources(this.radOnlySpecifiedPorts, "radOnlySpecifiedPorts");
+            this.radOnlySpecifiedPorts.ForeColor = System.Drawing.Color.Chocolate;
             this.radOnlySpecifiedPorts.Name = "radOnlySpecifiedPorts";
             this.radOnlySpecifiedPorts.TabStop = true;
             this.radOnlySpecifiedPorts.UseVisualStyleBackColor = true;
