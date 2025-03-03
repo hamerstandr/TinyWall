@@ -3,6 +3,7 @@
 // (updated 2014/11/13)
 
 using System;
+using System.IO;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -45,11 +46,11 @@ namespace pylorak.Windows
 			public extern static bool DestroyIcon(IntPtr handle);
 		}
 
-		[StructLayout(LayoutKind.Sequential)]
+		[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
 		private struct SHFILEINFO
 		{
 			public IntPtr hIcon;
-			public IntPtr iIcon;
+			public int iIcon;
 			public uint dwAttributes;
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
 			public string szDisplayName;
@@ -66,20 +67,40 @@ namespace pylorak.Windows
 
 			if (shinfo.hIcon != IntPtr.Zero)
 			{
-				// create the icon from the native handle and make a managed copy of it
-				Icon icon = (Icon)Icon.FromHandle(shinfo.hIcon).Clone();
-				NativeMethods.DestroyIcon(shinfo.hIcon);
-				return icon;
-			}
+				try
+				{
+					return (Icon)Icon.FromHandle(shinfo.hIcon).Clone();
+				}
+				finally
+				{
+                    NativeMethods.DestroyIcon(shinfo.hIcon);
+                }
+            }
 
 			throw new UnexpectedResultExceptions(nameof(NativeMethods.SHGetFileInfo));
 		}
 
 		internal static Icon GetIconForExtension(string extension, ShellIconSize size)
 		{
-			// repeat the process used for files, but instruct the API not to access the file
-			size |= (ShellIconSize)SHGFI_USEFILEATTRIBUTES;
-			return GetIconForFile(extension, size);
-		}
+            size |= (ShellIconSize)SHGFI_USEFILEATTRIBUTES;
+            try
+            {
+                return GetIconForFile(extension, size);
+			}
+			catch
+			{
+				var ext = Path.GetExtension(extension);
+				if (string.IsNullOrEmpty(ext))
+				{
+					// If we cannot determine the file extension, assume an executable
+					return GetIconForFile("file.exe", size);
+				}
+				else
+				{
+					// Get generic icon for whatever file extension was specified
+					return GetIconForFile("file" + ext, size);
+				}
+            }
+        }
 	}
 }

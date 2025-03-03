@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using pylorak.Windows;
+using pylorak.TinyWall.Parser;
 
 namespace pylorak.TinyWall.DatabaseClasses
 {
@@ -40,7 +41,7 @@ namespace pylorak.TinyWall.DatabaseClasses
             return new FirewallExceptionV3(withSubject, this.Policy);
         }
 
-        private ExceptionSubject? FromFolder(string parentFolder)
+        private ExecutableSubject? FromFolder(string parentFolder)
         {
             if (Subject is ExecutableSubject exesub)
             {

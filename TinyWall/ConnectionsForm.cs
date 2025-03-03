@@ -7,7 +7,6 @@ using System.Net.NetworkInformation;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Linq;
-
 using pylorak.Windows;
 using pylorak.Windows.NetStat;
 
@@ -16,7 +15,9 @@ namespace pylorak.TinyWall
     internal partial class ConnectionsForm : Form
     {
         private readonly TinyWallController Controller;
+        private readonly AsyncIconScanner IconScanner;
         private readonly Size IconSize = new((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
+        private bool EnableListUpdate = false;
 
         internal ConnectionsForm(TinyWallController ctrl)
         {
@@ -26,9 +27,12 @@ namespace pylorak.TinyWall
             this.Icon = Resources.Icons.firewall;
             this.Controller = ctrl;
 
+            const string TEMP_ICON_KEY = "generic-executable";
+            this.IconList.Images.Add(TEMP_ICON_KEY, Utils.GetIconContained(".exe", IconSize.Width, IconSize.Height));
             this.IconList.Images.Add("store", Resources.Icons.store);
             this.IconList.Images.Add("system", Resources.Icons.windows_small);
             this.IconList.Images.Add("network-drive", Resources.Icons.network_drive_small);
+            this.IconScanner = new AsyncIconScanner((ListViewItem li) => { return (li.Tag as ProcessInfo)!.Path; }, IconList.Images.IndexOfKey(TEMP_ICON_KEY));
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -36,10 +40,10 @@ namespace pylorak.TinyWall
             this.Close();
         }
 
-        private string GetPathFromPidCached(Dictionary<uint, string> cache, uint pid)
+        private static string GetPathFromPidCached(Dictionary<uint, string> cache, uint pid)
         {
-            if (cache.ContainsKey(pid))
-                return cache[pid];
+            if (cache.TryGetValue(pid, out string path))
+                return path;
             else
             {
                 string ret = Utils.GetPathOfProcessUseTwService(pid, GlobalInstances.Controller);
@@ -50,6 +54,12 @@ namespace pylorak.TinyWall
 
         private void UpdateList()
         {
+            if (!EnableListUpdate)
+            {
+                return;
+            }
+
+            IconScanner.CancelScan();
             var fwLogRequest = GlobalInstances.Controller.BeginReadFwLog();
 
             var uwpPackages = new UwpPackage();
@@ -203,6 +213,9 @@ namespace pylorak.TinyWall
             list.Items.Clear();
             list.Items.AddRange(itemColl.ToArray());
             list.EndUpdate();
+
+            // Load process icons asynchronously
+            IconScanner.Rescan(itemColl, list, IconList);
         }
 
         private void ConstructListItem(List<ListViewItem> itemColl, ProcessInfo e, string protocol, IPEndPoint localEP, IPEndPoint remoteEP, string state, DateTime ts, RuleDirection dir)
@@ -219,24 +232,19 @@ namespace pylorak.TinyWall
                 // Add icon
                 if (e.Package.HasValue)
                 {
-                    li.ImageKey = "store";
+                    li.ImageIndex = IconList.Images.IndexOfKey("store");
                 }
                 else if (e.Path == "System")
                 {
-                    li.ImageKey = "system";
+                    li.ImageIndex = IconList.Images.IndexOfKey("system");
                 }
                 else if (NetworkPath.IsNetworkPath(e.Path))
                 {
-                    li.ImageKey = "network-drive";
+                    li.ImageIndex = IconList.Images.IndexOfKey("network-drive");
                 }
-                else if (System.IO.Path.IsPathRooted(e.Path) && System.IO.File.Exists(e.Path))
+                else
                 {
-                    if (!IconList.Images.ContainsKey(e.Path))
-                    {
-                        // Get icon
-                        IconList.Images.Add(e.Path, Utils.GetIconContained(e.Path, IconSize.Width, IconSize.Height));
-                    }
-                    li.ImageKey = e.Path;
+                    li.ImageIndex = IconList.Images.ContainsKey(e.Path) ? IconList.Images.IndexOfKey(e.Path) : IconScanner.TemporaryIconIdx;
                 }
 
                 if (e.Pid == 0)
@@ -326,6 +334,7 @@ namespace pylorak.TinyWall
                 ActiveConfig.Controller.ConnFormColumnWidths.Add((string)col.Tag, col.Width);
 
             ActiveConfig.Controller.Save();
+            IconScanner.Dispose();
         }
 
         private void ConnectionsForm_Load(object sender, EventArgs e)
@@ -350,6 +359,7 @@ namespace pylorak.TinyWall
                     col.Width = width;
             }
 
+            EnableListUpdate = true;
             UpdateList();
         }
 
@@ -420,7 +430,7 @@ namespace pylorak.TinyWall
             ListViewItem li = list.SelectedItems[0];
             string clipboardData = li.SubItems[6].Text;
 
-            IDataObject dataObject = new DataObject();
+            var dataObject = new DataObject();
             dataObject.SetData(DataFormats.UnicodeText, false, clipboardData);
             try
             {

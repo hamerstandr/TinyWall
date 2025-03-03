@@ -5,13 +5,15 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Linq;
 using pylorak.Windows;
+using pylorak.Utilities;
 
 namespace pylorak.TinyWall
 {
     internal partial class ProcessesForm : Form
     {
-        internal readonly List<ProcessInfo> Selection = new List<ProcessInfo>();
-        private readonly Size IconSize = new Size((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
+        internal readonly List<ProcessInfo> Selection = new();
+        private readonly AsyncIconScanner IconScanner;
+        private readonly Size IconSize = new((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
 
         internal ProcessesForm(bool multiSelect)
         {
@@ -23,9 +25,12 @@ namespace pylorak.TinyWall
             this.btnOK.Image = GlobalInstances.ApplyBtnIcon;
             this.btnCancel.Image = GlobalInstances.CancelBtnIcon;
 
+            const string TEMP_ICON_KEY = "generic-executable";
+            this.IconList.Images.Add(TEMP_ICON_KEY, Utils.GetIconContained(".exe", IconSize.Width, IconSize.Height));
             this.IconList.Images.Add("store", Resources.Icons.store);
             this.IconList.Images.Add("system", Resources.Icons.windows_small);
             this.IconList.Images.Add("network-drive", Resources.Icons.network_drive_small);
+            this.IconScanner = new AsyncIconScanner((ListViewItem li) => { return (li.Tag as ProcessInfo)!.Path; }, IconList.Images.IndexOfKey(TEMP_ICON_KEY));
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
@@ -73,67 +78,64 @@ namespace pylorak.TinyWall
                     col.Width = width;
             }
 
-            List<ListViewItem> itemColl = new List<ListViewItem>();
-            UwpPackage packages = new UwpPackage();
-            ServicePidMap service_pids = new ServicePidMap();
+            var itemColl = new List<ListViewItem>();
+            var packages = new UwpPackage();
+            var service_pids = new ServicePidMap();
+            var procs = Process.GetProcesses();
 
-            Process[] procs = Process.GetProcesses();
             for (int i = 0; i < procs.Length; ++i)
             {
-                using (Process p = procs[i])
+                try
                 {
-                    try
+                    using var p = procs[i];
+                    var pid = unchecked((uint)p.Id);
+                    var e = ProcessInfo.Create(pid, packages, service_pids);
+
+                    if (string.IsNullOrEmpty(e.Path))
+                        continue;
+
+                    // Scan list of already added items to prevent duplicates
+                    bool skip = false;
+                    for (int j = 0; j < itemColl.Count; ++j)
                     {
-                        var pid = unchecked((uint)p.Id);
-                        var e = ProcessInfo.Create(pid, packages, service_pids);
-
-                        if (string.IsNullOrEmpty(e.Path))
-                            continue;
-
-                        // Scan list of already added items to prevent duplicates
-                        bool skip = false;
-                        for (int j = 0; j < itemColl.Count; ++j)
+                        ProcessInfo opi = (ProcessInfo)itemColl[j].Tag;
+                        if ((e.Package == opi.Package) && (e.Path == opi.Path) && (e.Services.SetEquals(opi.Services)))
                         {
-                            ProcessInfo opi = (ProcessInfo)itemColl[j].Tag;
-                            if ((e.Package == opi.Package) && (e.Path == opi.Path) && (e.Services.SetEquals(opi.Services)))
-                            {
-                                skip = true;
-                                break;
-                            }
-                        }
-                        if (skip)
-                            continue;
-
-                        // Add list item
-                        ListViewItem li = new ListViewItem(e.Package.HasValue ? e.Package.Value.Name : p.ProcessName);
-                        li.SubItems.Add(string.Join(", ", e.Services.ToArray()));
-                        li.SubItems.Add(e.Path);
-                        li.Tag = e;
-                        itemColl.Add(li);
-
-                        // Add icon
-                        if (e.Package.HasValue)
-                        {
-                            li.ImageKey = "store";
-                        }
-                        else if (e.Path == "System")
-                        {
-                            li.ImageKey = "system";
-                        }
-                        else if (NetworkPath.IsNetworkPath(e.Path))
-                        {
-                            li.ImageKey = "network-drive";
-                        }
-                        else if (System.IO.Path.IsPathRooted(e.Path) && System.IO.File.Exists(e.Path))
-                        {
-                            if (!IconList.Images.ContainsKey(e.Path))
-                                IconList.Images.Add(e.Path, Utils.GetIconContained(e.Path, IconSize.Width, IconSize.Height));
-                            li.ImageKey = e.Path;
+                            skip = true;
+                            break;
                         }
                     }
-                    catch
+                    if (skip)
+                        continue;
+
+                    // Add list item
+                    var li = new ListViewItem(e.Package.HasValue ? e.Package.Value.Name : p.ProcessName);
+                    li.SubItems.Add(string.Join(", ", e.Services.ToArray()));
+                    li.SubItems.Add(e.Path);
+                    li.Tag = e;
+                    itemColl.Add(li);
+
+                    // Add icon
+                    if (e.Package.HasValue)
                     {
+                        li.ImageIndex = IconList.Images.IndexOfKey("store");
                     }
+                    else if (e.Path == "System")
+                    {
+                        li.ImageIndex = IconList.Images.IndexOfKey("system");
+                    }
+                    else if (NetworkPath.IsNetworkPath(e.Path))
+                    {
+                        li.ImageIndex = IconList.Images.IndexOfKey("network-drive");
+                    }
+                    else
+                    {
+                        // Real icon will be loaded later asynchronously, for now just assign a generic icon
+                        li.ImageIndex = IconScanner.TemporaryIconIdx;
+                    }
+                }
+                catch
+                {
                 }
             }
 
@@ -142,6 +144,9 @@ namespace pylorak.TinyWall
             listView.ListViewItemSorter = new ListViewItemComparer(0);
             listView.Items.AddRange(itemColl.ToArray());
             listView.EndUpdate();
+
+            // Load process icons asynchronously
+            IconScanner.Rescan(itemColl, listView, IconList);
         }
 
         private void listView_ColumnClick(object sender, ColumnClickEventArgs e)
@@ -173,6 +178,7 @@ namespace pylorak.TinyWall
                 ActiveConfig.Controller.ProcessesFormColumnWidths.Add((string)col.Tag, col.Width);
 
             ActiveConfig.Controller.Save();
+            IconScanner.Dispose();
         }
     }
 }

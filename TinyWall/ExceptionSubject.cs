@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using pylorak.Windows;
+using pylorak.TinyWall.Parser;
 
 namespace pylorak.TinyWall
 {
@@ -170,9 +171,7 @@ namespace pylorak.TinyWall
         {
             get
             {
-                if (_HashSha1 is null)
-                    _HashSha1 = Hasher.HashFileSha1(this.ExecutablePath);
-
+                _HashSha1 ??= Hasher.HashFileSha1(this.ExecutablePath);
                 return _HashSha1;
             }
         }

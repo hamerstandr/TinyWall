@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Drawing;
 using System.Windows.Forms;
+using pylorak.Utilities;
 using pylorak.Windows;
 
 namespace pylorak.TinyWall
@@ -30,8 +31,9 @@ namespace pylorak.TinyWall
 
         internal ConfigContainer TmpConfig;
 
-        private List<ListViewItem> ExceptionItems = new();
-        private List<ListViewItem> FilteredExceptionItems = new();
+        private readonly AsyncIconScanner IconScanner;
+        private readonly List<ListViewItem> ExceptionItems = new();
+        private readonly List<ListViewItem> FilteredExceptionItems = new();
         private bool LoadingSettings;
         private string? m_NewPassword;
         private Size IconSize = new((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
@@ -56,6 +58,15 @@ namespace pylorak.TinyWall
             this.btnWeb.Image = GlobalInstances.WebBtnIcon;
             this.btnDonate.BackgroundImage = Resources.Icons.donate;
 
+            const string TEMP_ICON_KEY = "generic-executable";
+            IconList.Images.Add(TEMP_ICON_KEY, Utils.GetIconContained(".exe", IconSize.Width, IconSize.Height));
+            IconList.Images.Add("deleted", Resources.Icons.delete);
+            IconList.Images.Add("network-drive", Resources.Icons.network_drive_small);
+            IconList.Images.Add("window", Resources.Icons.window);
+            IconList.Images.Add("store", Resources.Icons.store);
+            IconList.Images.Add("system", Resources.Icons.windows_small);
+            IconScanner = new AsyncIconScanner((ListViewItem li) => { return ((li.Tag as FirewallExceptionV3)!.Subject as ExecutableSubject)?.ExecutablePath ?? string.Empty; }, IconList.Images.IndexOfKey(TEMP_ICON_KEY));
+
             listApplications.AllowDrop = true;
             listApplications.DragEnter += ListApplications_DragEnter;
             listApplications.DragDrop += ListApplications_DragDrop;
@@ -66,7 +77,7 @@ namespace pylorak.TinyWall
 
         private void ListApplications_DragDrop(object sender, DragEventArgs e)
         {
-            List<FirewallExceptionV3> list = new List<FirewallExceptionV3>();
+            var list = new List<FirewallExceptionV3>();
 
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop, false);
             foreach (string file in files)
@@ -133,7 +144,7 @@ namespace pylorak.TinyWall
                     if (app.HasFlag("TWUI:Special") && !app.HasFlag("TWUI:Hidden"))
                     {
                         // Get localized name
-                        IdWithName item = new IdWithName(app.Name, app.LocalizedName);
+                        var item = new IdWithName(app.Name, app.LocalizedName);
 
                         // Construct default name in case no localization exists
                         if (string.IsNullOrEmpty(item.Name))
@@ -158,7 +169,9 @@ namespace pylorak.TinyWall
 
         private void RebuildExceptionsList()
         {
-            UwpPackage packageList = new UwpPackage();
+            IconScanner.CancelScan();
+
+            var packageList = new UwpPackage();
             ExceptionItems.Clear();
             for (int i = 0; i < TmpConfig.Service.ActiveProfile.AppExceptions.Count; ++i)
             {
@@ -169,6 +182,9 @@ namespace pylorak.TinyWall
             ExceptionItems.Sort(listApplications.ListViewItemSorter as ListViewItemComparer);
 
             ApplyExceptionFilter();
+
+            // Load application icons asynchronously
+            IconScanner.Rescan(ExceptionItems, listApplications, IconList);
         }
 
         private void ApplyExceptionFilter()
@@ -240,11 +256,11 @@ namespace pylorak.TinyWall
                 default:
                     throw new NotImplementedException();
             }
-
+            li.SubItems.Add(ex.CreationDate.ToString("yyyy/MM/dd HH:mm"));
 
             if (ex.Policy.PolicyType == PolicyType.HardBlock)
             {
-                li.BackColor = System.Drawing.Color.LightPink;
+                li.BackColor = Color.LightPink;
             }
 
             if (uwpSubj is not null)
@@ -252,7 +268,7 @@ namespace pylorak.TinyWall
                 if (!packageList.FindPackage(uwpSubj.Sid).HasValue)
                 {
                     li.ImageIndex = IconList.Images.IndexOfKey("deleted");
-                    li.BackColor = System.Drawing.Color.LightGray;
+                    li.BackColor = Color.LightGray;
                 }
             }
 
@@ -267,20 +283,19 @@ namespace pylorak.TinyWall
                      */
                     li.ImageIndex = IconList.Images.IndexOfKey("network-drive");
                 }
-                else if (File.Exists(exeSubj.ExecutablePath))
-                {
-                    if (!IconList.Images.ContainsKey(exeSubj.ExecutablePath))
-                        IconList.Images.Add(exeSubj.ExecutablePath, Utils.GetIconContained(exeSubj.ExecutablePath, IconSize.Width, IconSize.Height));
-                    li.ImageIndex = IconList.Images.IndexOfKey(exeSubj.ExecutablePath);
-                }
                 else if (exeSubj.ExecutablePath == "System")
                 {
                     li.ImageIndex = IconList.Images.IndexOfKey("system");
                 }
+                else if (File.Exists(exeSubj.ExecutablePath))
+                {
+                    // Real icon will be loaded later asynchronously, for now just assign a generic icon
+                    li.ImageIndex = IconList.Images.ContainsKey(exeSubj.ExecutablePath) ? IconList.Images.IndexOfKey(exeSubj.ExecutablePath) : IconScanner.TemporaryIconIdx;
+                }
                 else
                 {
                     li.ImageIndex = IconList.Images.IndexOfKey("deleted");
-                    li.BackColor = System.Drawing.Color.LightGray;
+                    li.BackColor = Color.LightGray;
                 }
             }
 
@@ -315,12 +330,12 @@ namespace pylorak.TinyWall
 
             TmpConfig.Controller.Language = ((IdWithName)comboLanguages.SelectedItem).Id;
 
-            this.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.DialogResult = DialogResult.OK;
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.DialogResult = DialogResult.Cancel;
         }
 
         private void listRecommendedGlobalProfiles_ItemCheck(object sender, ItemCheckEventArgs e)
@@ -372,7 +387,7 @@ namespace pylorak.TinyWall
             FirewallExceptionV3 oldEx = (FirewallExceptionV3)li.Tag;
             FirewallExceptionV3 newEx = Utils.DeepClone(oldEx);
             newEx.RegenerateId();
-            using (ApplicationExceptionForm f = new ApplicationExceptionForm(newEx))
+            using (var f = new ApplicationExceptionForm(newEx))
             {
                 if (f.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
                 {
@@ -390,7 +405,7 @@ namespace pylorak.TinyWall
         private void btnAppAdd_Click(object sender, EventArgs e)
         {
             using var f = new ApplicationExceptionForm(FirewallExceptionV3.Default);
-            if (f.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+            if (f.ShowDialog(this) == DialogResult.OK)
             {
                 TmpConfig.Service.ActiveProfile.AddExceptions(f.ExceptionSettings);
                 RebuildExceptionsList();
@@ -415,7 +430,7 @@ namespace pylorak.TinyWall
 
         private void btnWeb_Click(object sender, EventArgs e)
         {
-            ProcessStartInfo psi = new ProcessStartInfo(@"https://tinywall.pados.hu");
+            var psi = new ProcessStartInfo(@"https://tinywall.pados.hu");
             psi.UseShellExecute = true;
             Process.Start(psi);
         }
@@ -435,13 +450,11 @@ namespace pylorak.TinyWall
 
         private void btnAppAutoDetect_Click(object sender, EventArgs e)
         {
-            using (AppFinderForm aff = new AppFinderForm())
+            using var aff = new AppFinderForm();
+            if (aff.ShowDialog(this) == DialogResult.OK)
             {
-                if (aff.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
-                {
-                    TmpConfig.Service.ActiveProfile.AddExceptions(aff.SelectedExceptions);
-                    RebuildExceptionsList();
-                }
+                TmpConfig.Service.ActiveProfile.AddExceptions(aff.SelectedExceptions);
+                RebuildExceptionsList();
             }
         }
 
@@ -454,7 +467,7 @@ namespace pylorak.TinyWall
         {
             try
             {
-                ProcessStartInfo psi = new ProcessStartInfo(Path.Combine(Path.GetDirectoryName(Utils.ExecutablePath), "License.rtf"));
+                var psi = new ProcessStartInfo(Path.Combine(Path.GetDirectoryName(Utils.ExecutablePath), "License.rtf"));
                 psi.UseShellExecute = true;
                 Process.Start(psi);
             }
@@ -465,7 +478,7 @@ namespace pylorak.TinyWall
         {
             try
             {
-                ProcessStartInfo psi = new ProcessStartInfo(@"https://tinywall.pados.hu/donate.php");
+                var psi = new ProcessStartInfo(@"https://tinywall.pados.hu/donate.php");
                 psi.UseShellExecute = true;
                 Process.Start(psi);
             }
@@ -485,7 +498,7 @@ namespace pylorak.TinyWall
         private void btnImport_Click(object sender, EventArgs e)
         {
             ofd.Filter = string.Format(CultureInfo.CurrentCulture, "{0} (*.tws)|*.tws|{1} (*)|*", Resources.Messages.TinyWallSettingsFileFilter, Resources.Messages.AllFilesFileFilter);
-            if (ofd.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+            if (ofd.ShowDialog(this) == DialogResult.OK)
             {
                 try
                 {
@@ -507,7 +520,7 @@ namespace pylorak.TinyWall
         {
             ofd.Filter = string.Format(CultureInfo.CurrentCulture, "{0} (*.tws)|*.tws|{1} (*)|*", Resources.Messages.TinyWallSettingsFileFilter, Resources.Messages.AllFilesFileFilter);
             sfd.DefaultExt = "tws";
-            if (sfd.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+            if (sfd.ShowDialog(this) == DialogResult.OK)
             {
                 SerializationHelper.SerializeToFile(this.TmpConfig, sfd.FileName);
                 MessageBox.Show(this, Resources.Messages.ConfigurationHasBeenExported, Resources.Messages.TinyWallSettingsFileFilter, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -555,14 +568,8 @@ namespace pylorak.TinyWall
             comboLanguages.Items.Add(new IdWithName("ja", "日本語"));
             comboLanguages.Items.Add(new IdWithName("ko", "한국어"));
             comboLanguages.Items.Add(new IdWithName("zh", "汉语"));
-            
-            IconList.Images.Add("deleted", Resources.Icons.delete);
-            IconList.Images.Add("network-drive", Resources.Icons.network_drive_small);
-            IconList.Images.Add("window", Resources.Icons.window);
-            IconList.Images.Add("store", Resources.Icons.store);
-            IconList.Images.Add("system", Resources.Icons.windows_small);
 
-            lblVersion.Text = string.Format(CultureInfo.CurrentCulture, "{0} {1}", lblVersion.Text, System.Windows.Forms.Application.ProductVersion.ToString());
+            lblVersion.Text = string.Format(CultureInfo.CurrentCulture, "{0} {1}", lblVersion.Text, Application.ProductVersion);
 
             InitSettingsUI();
 
@@ -584,8 +591,8 @@ namespace pylorak.TinyWall
 
         private void listApplications_ColumnClick(object sender, ColumnClickEventArgs e)
         {
-            ListViewItemComparer oldSorter = (ListViewItemComparer)listApplications.ListViewItemSorter;
-            ListViewItemComparer newSorter = new ListViewItemComparer(e.Column, IconList);
+            var oldSorter = (ListViewItemComparer)listApplications.ListViewItemSorter;
+            var newSorter = new ListViewItemComparer(e.Column, IconList);
             if ((oldSorter != null) && (oldSorter.Column == newSorter.Column))
                 newSorter.Ascending = !oldSorter.Ascending;
 
@@ -603,7 +610,7 @@ namespace pylorak.TinyWall
         {
             try
             {
-                ProcessStartInfo psi = new ProcessStartInfo(Path.Combine(Path.GetDirectoryName(Utils.ExecutablePath), "Attributions.txt"));
+                var psi = new ProcessStartInfo(Path.Combine(Path.GetDirectoryName(Utils.ExecutablePath), "Attributions.txt"));
                 psi.UseShellExecute = true;
                 Process.Start(psi);
             }
@@ -635,6 +642,8 @@ namespace pylorak.TinyWall
             }
 
             ActiveConfig.Controller.Save();
+
+            IconScanner.Dispose();
         }
 
         private void listApplications_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
@@ -658,7 +667,7 @@ namespace pylorak.TinyWall
 
         private void btnGithub_Click(object sender, EventArgs e)
         {
-            ProcessStartInfo psi = new ProcessStartInfo(@"https://github.com/pylorak/tinywall");
+            var psi = new ProcessStartInfo(@"https://github.com/pylorak/tinywall");
             psi.UseShellExecute = true;
             Process.Start(psi);
         }
